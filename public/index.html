@@ -15,14 +15,14 @@
       <input id="url" type="url" class="validate[required,custom[onlyLetter],length[0,100]] feedback-input"
         autocomplete="off" required pattern=".*youtube.*" placeholder="URL de la vidéo YouTube" />
     </p>
-    <!-- list with differents qualities : 320/480/720/1080 1080 beeing default -->
     <p class="text">
       <select id="quality" class="validate[required,custom[onlyLetter],length[0,100]] feedback-input">
         <option value="1080">1080p</option>
         <option value="720">720p</option>
         <option value="480">480p</option>
-        <option value="320">320p</option>
+        <option value="360">360p</option>
       </select>
+    </p>
     <div class="btn-group">
       <button id="download-video" data-format="mp4">Télécharger la <b>vidéo</b></button>
       <button id="download-audio" data-format="mp3">Télécharger <b>l'audio</b></button>
@@ -30,31 +30,32 @@
   </div>
 
   <script>
-
-    handleButtonClick = () => {
+    handleButtonClick = (event) => {
       const url = document.getElementById('url').value;
       const quality = document.getElementById('quality').value;
-      const format = document.getElementById('download-audio').getAttribute('data-format');
-      callAPI(url, quality, format);
+      const format = event.target.getAttribute('data-format');
+
+      if (!url) {
+        alert('Veuillez entrer une URL valide !');
+        return;
+      }
+
+      downloadFile(url, quality, format);
     }
 
-    function callAPI(url, quality, format) {
-    fetch(`/download/${format}/?url=${encodeURIComponent(url)}&quality=${quality}`)
-        .then(response => response.json())  // Supposons que le serveur renvoie une réponse JSON
-        .then(data => {
-            console.log('Réponse reçue:', data);
-            // Vous pouvez traiter la réponse ici, par exemple, afficher un message, etc.
-        })
-        .catch(error => console.error('Erreur lors de la requête:', error));
-}
+    function downloadFile(url, quality, format) {
+      console.log(url, quality, format);
+      const downloadUrl = `/download/${format}/?url=${encodeURIComponent(url)}&quality=${quality}`;
 
+      // Redirect to the download URL
+      window.location.href = downloadUrl;
+    }
 
-    
-    document.getElementById('download-video').addEventListener('click',handleButtonClick)
+    document.getElementById('download-video').addEventListener('click', handleButtonClick);
 
     document.getElementById('download-audio').addEventListener('click', handleButtonClick);
-
   </script>
+
 </body>
 
 </html>

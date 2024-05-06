@@ -97,13 +97,14 @@ input:focus {
 .btn-group {
   display: flex;
 }
+
 .btn-group button {
   color: white;
   padding: 24px;
   cursor: pointer;
   font-size:20px;
   width: 100%;
-  margin: 2px 0;
+  margin: 4px;
 }
 
 #download-audio {
