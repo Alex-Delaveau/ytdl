@@ -3,12 +3,15 @@
     "content-disposition": "^0.5.4",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2",
     "nodemon": "^3.1.0",
     "ytdl-core": "^4.11.5"
   },
   "name": "ytdl",
   "version": "1.0.0",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js"

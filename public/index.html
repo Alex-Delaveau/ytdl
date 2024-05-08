@@ -24,16 +24,28 @@
       </select>
     </p>
     <div class="btn-group">
-      <button id="download-video" data-format="mp4">Télécharger la <b>vidéo</b></button>
-      <button id="download-audio" data-format="mp3">Télécharger <b>l'audio</b></button>
+      <button id="download-video" data-format="video">Télécharger la <b>vidéo</b></button>
+      <button id="download-audio" data-format="audio">Télécharger <b>l'audio</b></button>
     </div>
   </div>
 
+  <div class="loader-container" id="loader-container" style="display: none;">
+    <div class="loader"></div>
+  </div>
+
   <script>
-    handleButtonClick = (event) => {
+    const showLoader = () => {
+      document.getElementById('loader-container').style.display = 'flex';
+    };
+
+    const hideLoader = () => {
+      document.getElementById('loader-container').style.display = 'none';
+    };
+
+    const handleButtonClick = (event) => {
       const url = document.getElementById('url').value;
       const quality = document.getElementById('quality').value;
-      const format = event.target.getAttribute('data-format');
+      const format = event.currentTarget.getAttribute('data-format');
 
       if (!url) {
         alert('Veuillez entrer une URL valide !');
@@ -43,16 +55,36 @@
       downloadFile(url, quality, format);
     }
 
-    function downloadFile(url, quality, format) {
-      console.log(url, quality, format);
+    const downloadFile = async (url, quality, format) => {
       const downloadUrl = `/download/${format}/?url=${encodeURIComponent(url)}&quality=${quality}`;
+      showLoader();
+      try {
+        const response = await fetch(downloadUrl, {
+          method: "GET",
+        });
 
-      // Redirect to the download URL
-      window.location.href = downloadUrl;
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const filename = response.headers.get('Content-Disposition').split('filename=')[1].replace(/"/g, '');
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error downloading file:", error);
+        alert("An error occurred while downloading the file. Please check the URL and try again.");
+      } finally {
+        hideLoader();
+      }
     }
 
     document.getElementById('download-video').addEventListener('click', handleButtonClick);
-
     document.getElementById('download-audio').addEventListener('click', handleButtonClick);
   </script>
 
