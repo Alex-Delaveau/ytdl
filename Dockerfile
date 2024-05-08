@@ -22,11 +22,13 @@ ENV PORT=8080
 
 # Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
 
-# Create app directory and the tmp folder with permissions
+# Create app directory and tmp folder with root permissions
 WORKDIR /home/app
-RUN mkdir -p /home/app/tmp && chown -R appuser:appgroup /home/app/tmp
+RUN mkdir -p /home/app/tmp && chown -R appuser:appgroup /home/app
+
+# Switch to non-root user
+USER appuser
 
 # Copy node_modules and application files
 COPY --from=build /usr/src/app/node_modules ./node_modules
