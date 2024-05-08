@@ -1,0 +1,25 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    container_name: yt
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+    ports:
+      - "8084:8080"
+    volumes:
+      - .:/home/app
+      - /home/app/node_modules
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    deploy:
+      resources:
+        limits:
+          memory: 4096M
+        reservations:
+          memory: 256M
