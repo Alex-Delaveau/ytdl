@@ -58,9 +58,16 @@
     const downloadFile = async (url, quality, format) => {
       const downloadUrl = `/download/${format}/?url=${encodeURIComponent(url)}&quality=${quality}`;
       showLoader();
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => {
+        controller.abort();
+      }, 10 * 60 * 1000); 
+
       try {
         const response = await fetch(downloadUrl, {
           method: "GET",
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -77,12 +84,17 @@
         link.click();
         document.body.removeChild(link);
       } catch (error) {
-        console.error("Error downloading file:", error);
-        alert("An error occurred while downloading the file. Please check the URL and try again.");
+        if (error.name === 'AbortError') {
+          alert("The download was aborted due to timeout.");
+        } else {
+          console.error("Error downloading file:", error);
+          alert("An error occurred while downloading the file. Please check the URL and try again.");
+        }
       } finally {
+        clearTimeout(timeout);
         hideLoader();
       }
-    }
+    };
 
     document.getElementById('download-video').addEventListener('click', handleButtonClick);
     document.getElementById('download-audio').addEventListener('click', handleButtonClick);

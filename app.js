@@ -5,7 +5,7 @@ import contentDisposition from "content-disposition";
 import fluentFfmpeg from "fluent-ffmpeg";
 import ffmpegStatic from "ffmpeg-static";
 import fs from "fs";
-
+import http from "http";
 
 const videoPath = 'tmp/video.mp4';
 const audioPath = 'tmp/audio.mp3';
@@ -16,12 +16,14 @@ if (!fs.existsSync("tmp/")) fs.mkdirSync("tmp/");
 
 const app = express();
 app.use(express.static("public"));
+const server = http.createServer(app);
+server.setTimeout(15 * 60 * 1000); // 15 minutes
 
 const optsByFormat = new Map([
   ["mp3", { format: "mp3", quality: "highestaudio", filter: "audioonly" }],
 ]);
 
-const downloadAudio = async (res, req) => {
+const downloadAudio = async (req, res) => {
   const url = decodeURIComponent(req.query.url);
 
   if (!ytdl.validateURL(url)) return res.status(400).send("Invalid link!");
@@ -43,7 +45,7 @@ const downloadAudio = async (res, req) => {
   ytdl(url, audioOpts).pipe(res);
 };
 
-const downloadVideo = async (res, req) => {
+const downloadVideo = async (req, res) => {
   const url = decodeURIComponent(req.query.url);
   const quality = req.query.quality || "highest";
 
@@ -168,12 +170,12 @@ app.get("/download/:format", async (req, res) => {
   }
 
   if (format === "audio") {
-    await downloadAudio(res, req);
+    await downloadAudio(req, res);
   } else {
-    await downloadVideo(res, req);
+    await downloadVideo(req, res);
   }
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
