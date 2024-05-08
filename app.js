@@ -88,8 +88,10 @@ const downloadVideo = async (req, res) => {
   
 
 
-
+  console.log("RETRIEVNIG VIDEO")
   const videoStream = ytdl(url,{ format: videoFormat });
+  
+  console.log("RETRIEVNIG AUDIO")
   const audioStream = ytdl(url,  { quality: 'highestaudio', filter: 'audioonly'});
   const mergedStream = await mergeStreams(videoStream, audioStream);
   res.set("Content-Length", fs.statSync(mergedPath).size);
@@ -125,9 +127,11 @@ const writeBufferToFile = async (buffer, filePath) => {
 };
 
 const mergeStreams = async (videoStream, audioStream) => {
+  console.log("STREAMS TO BUFFER")
   //put stream datas into tmp files | tmp/video.mp4 | tmp/audio.mp3
   const videoBuffer = await downloadStreamToBuffer(videoStream);
   const audioBuffer = await downloadStreamToBuffer(audioStream);
+  console.log("WRITING FILES")
   await writeBufferToFile(videoBuffer, videoPath);
   await writeBufferToFile(audioBuffer, audioPath);
   //create file on mergedPath
@@ -135,7 +139,7 @@ const mergeStreams = async (videoStream, audioStream) => {
 
 
   //merge streams
-
+  console.log("MERGING FILES")
   await new Promise((resolve, reject) => {
     fluentFfmpeg(videoPath)
       .input(audioPath)
